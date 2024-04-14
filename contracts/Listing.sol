@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract ItemListing {
+contract Listing {
     struct item {
         string name;
         uint256 availableStartTime; // Timestamp when buying starts
         uint256 duration; // Duration of buying period (in seconds)
         uint256 price; // Price of the item
     }
+
+    constructor () {}
 
     mapping(uint256 => item) items; // Mapping from item ID to item struct
     uint256 nextItemId; // ID to assign to the next item

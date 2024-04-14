@@ -1,37 +1,49 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract bidding {
+contract Bidding {
     address public owner;
     address public highestBidder;
     uint256 public highestBid;
     uint256 public auctionEnd;
     address payable public receiverAddr;
     uint256 reservePrice;
-    uint256 public minimumStartPrice = 1000; // assuming the minimum start price is 1000
-    uint256 public minimumIncrement = 100; // assuming the minimum increment is 100
+    string massage = "Deal!";
 
     mapping(address => uint) pendingReturns;
     bool ended;
 
     event HighestBidIncreased(address bidder, uint amount);
     event AuctionEnded(address winner, uint amount);
+    event Message(string massage);
 
     modifier onlyOwner() {
         require(msg.sender == owner, 'Only the owner can call this function');
         _;
     }
 
-    constructor (
-        uint256 biddingtime,
-        address payable _receiverAddr,
-        uint256 _reservePrice
-    ) {
+    constructor () {
         owner = msg.sender;
-        auctionEnd = block.timestamp + biddingtime;
+        auctionEnd = block.timestamp + 86400; // Default bidding time is set to 1 day (86400 seconds)
+        receiverAddr = payable(address(0)); // Set receiver address to null address
+        reservePrice = 0; // Default reserve price is set to 0
+        minimumStartPrice = 0; // Set minimum start price to 0
+        minimumIncrement = 0; // Set minimum increment to 0
+    }
+
+    // Function to update variables
+    function updateVariables(uint256 _biddingTime, address payable _receiverAddr, uint256 _reservePrice, uint256 _minimumStartPrice, uint256 _minimumIncrement) external {
+        require(msg.sender == owner, "Only the owner can call this function");
+        auctionEnd = block.timestamp + _biddingTime;
         receiverAddr = _receiverAddr;
         reservePrice = _reservePrice;
+        minimumStartPrice = _minimumStartPrice;
+        minimumIncrement = _minimumIncrement;
     }
+
+    uint256 minimumStartPrice; // Declare as state variables instead of constants
+    uint256 minimumIncrement;
+
 
     /// The auction has already ended.
     error AuctionAlreadyEnded();
@@ -97,6 +109,7 @@ contract bidding {
             revert PriceIsNoSufficient(highestBid);
         } else if (ended == true && highestBid >= reservePrice) {
             receiverAddr.transfer(highestBid);
+            emit Message(massage);
         }
     }
 }
